@@ -1,8 +1,47 @@
+
+
+import Notiflix from "notiflix";
+
+const form = document.querySelector('.form');
+
+form.addEventListener('submit', function (event) {
+  event.preventDefault();
+  
+  const delay = parseInt(this.elements.delay.value);
+  const step = parseInt(this.elements.step.value);
+  const amount = parseInt(this.elements.amount.value);
+
+  if (isNaN(delay) || isNaN(step) || isNaN(amount)) {
+    Notiflix.Notify.failure('Please fill in all fields with valid numbers');
+    return;
+  }
+
+  createPromises(amount, delay, step);
+});
+
 function createPromise(position, delay) {
-  const shouldResolve = Math.random() > 0.3;
-  if (shouldResolve) {
-    // Fulfill
-  } else {
-    // Reject
+  return new Promise((resolve, reject) => {
+    const shouldResolve = Math.random() > 0.3;
+    setTimeout(() => {
+      if (shouldResolve) {
+        resolve({ position, delay });
+      } else {
+        reject({ position, delay });
+      }
+    }, delay);
+  });
+}
+
+function createPromises(amount, delay, step) {
+  for (let i = 1; i <= amount; i++) {
+    createPromise(i, delay)
+      .then(({ position, delay }) => {
+        Notiflix.Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
+      })
+      .catch(({ position, delay }) => {
+        Notiflix.Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
+      });
+
+    delay += step;
   }
 }
